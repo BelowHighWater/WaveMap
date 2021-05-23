@@ -1,0 +1,200 @@
+.wavetable {
+	width: auto; 
+	margin-left:auto; 
+	margin-right:auto;
+	white-space: nowrap;  
+	cellspacing: 10px; 
+	cellpadding:0px;
+	}
+
+.wavehead {
+	font-family: arial,verdana, courier, sans-serif;
+	font-size: 16px;
+	}
+.wavenote {
+	font-family: raleway,arial,verdana, courier, sans-serif;
+	font-size: 16px;
+	font-weight: bold;
+	color: blue
+	}
+
+.iframez {
+	padding-left: 0px;
+	loading: eager;
+	width:300px;
+	height:200px;
+	resize: no;
+	frameBorder: 0px;
+	border: 0px;
+	overflow: no
+}
+
+.info {
+    background:#fff;
+    position:absolute;
+    width:200px;
+    top:10px;
+    right:10px;
+    border-radius:0px;
+    }
+    .info .item {
+      display:block;
+      border-bottom:0px solid #eee;
+      padding:10px;
+      text-decoration:none;
+      }
+      .info .item small { color:#888; }
+      .info .item:hover,
+      .info .item.active { background:#f8f8f8; }
+      .info .item:last-child { border-bottom:none; }
+
+.leaflet-popup-content {
+  width:auto;
+  height: auto;    
+  }
+
+.tabs {
+    position:relative;
+    min-height:180px;
+    height: auto;
+    border:0px solid #ccc;
+    clear:both;
+    margin:1px 0;
+}
+.tab {
+    float:left;
+    display: none;
+    border:0px solid #ccc;
+}
+.tab:first-of-type {
+    display: inline-block;
+}
+.tabs-link {
+    position: relative;
+    top: -2px;
+    height: 10px;
+    left: -35px;
+}
+.tab-link {
+    background:#eee;
+    display: inline-block;
+    padding:5px;
+    border:2px solid #ccc;
+    margin-left:-1px;
+    position:relative;
+    list-style-type: none;
+    left:1px;
+    top:1px;
+    cursor:pointer;
+}
+.tab-link {
+    background:#f8f8f8;
+}
+.content {
+    background:white;
+    position:absolute;
+    top:28px;
+    height:auto;
+    left:0;
+    right:0;
+    bottom:0;
+    padding:5px;
+    border:0px solid #ccc;
+}
+.tab:target {
+    display: block;
+}
+
+p {
+  margin: 1.5em 0;
+  color: #aaa;
+}
+
+img {
+  max-height: 50vh;
+}
+
+a {
+  color: inherit;
+}
+
+a:hover {
+  color: #bbb;
+}
+
+.italic { font-style: italic; }
+.small { font-size: 0.8em; }
+
+/** LIGHTBOX MARKUP **/
+
+.lightbox {
+  /* Default to hidden */
+  display: none;
+  align-items: center;	
+
+  /* Overlay entire screen */
+  position: fixed;
+  z-index: 999;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  
+  /* A bit of padding around image */
+  padding: 1em;
+
+  /* Translucent background */
+  background: rgba(0, 0, 0, 0.7);
+}
+
+/* Unhide the lightbox when it's the target */
+.lightbox:target {
+  display: block;
+}
+
+.lightbox span {
+  /* Full width and height */
+  display: block;
+  width: 100%;
+  height: 100%;
+
+  /* Size and position background image */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+}
+
+.imageType{
+	width:7vh; 
+	height: 7vh;
+	padding: 2vh;
+	vertical-align: middle;
+	horizontal-align: middle;
+	}
+.imageDepth{
+	width:3.4vh; 
+	height: 5.6vh;
+	vertical-align:middle;
+	horizontal-align:middle;
+	}
+
+p3 {
+	font-size: 3vh;
+	font-family: arial, sans-serif;
+	color: white;
+	text-align: center;
+	}
+
+
+p4 {
+	font-size: 5vh;
+	font-weight: bold;
+	font-family: arial, sans-serif;
+	color: white;
+	text-align: center;
+	}
+
+.KeyColumn {
+	column-count: 2
+	column-gap: 5vw
+	}
