@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html>
+<head>
+	
+	<title>Below High Water - Wave Conditions</title>
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+	<link rel="stylesheet" href="css/leaflet.css" />
+    <link rel="stylesheet" href="css/screen.css" />
+	<link rel="stylesheet" href="css/MarkerCluster.css" />
+	<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+	<link rel="stylesheet" href="css/tabs.css" />
+	<link rel="shortcut icon" type="image/x-icon" href="markers/site-marker.png" />
+	<script src="js/leaflet.js"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	
+ 
+</head>
+<style>A {text-decoration: none;} </style>
+<body>
+
+<div id='map'></div>
+<div id="box" style="z-index:5;"></div>
+
+<script>
+
+var SW = L.latLng(50.4, -2.3)
+var NE = L.latLng(50.8, -2)
+var SWmax = L.latLng(50, -3)
+var NEmax = L.latLng(52, -0.5)
+DorsetBounds = L.latLngBounds(NE,SW);
+maxPanning = L.latLngBounds(NEmax,SWmax);
+
+//Base Maps from Open Street Map
+	var map = L.map('map',{
+	maxBounds: maxPanning,
+	boundsViscosity: 1.0,
+})
+	Land = L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
+		maxZoom: 13,
+		minZoom: 8,
+		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
+			     'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+		id: 'mapbox/streets-v11',
+	}).addTo(map);
+
+//Google Satellite maps
+
+	Satellite = L.tileLayer('http://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {
+		maxZoom: 13,
+		minZoom: 8,
+		attribution: '&copy; <a href="https://about.google/brand-resource-center/products-and-services/geo-guidelines/#required-attribution">Google </a> contributors'
+		});
+
+	
+map.fitBounds([DorsetBounds]);
+
+
+var baseMaps = {
+    "Street": Land,
+	"Satellite": Satellite
+	};
+
+
+//Marker template
+	siteflag = L.Icon.extend({
+		options: {
+    		iconSize:     [41,67],
+			iconAnchor:   [20,67],
+			shadowUrl: 'markers/icon-shadow.png',
+    		shadowSize:   [41,67],
+    		shadowAnchor: [8,50],  
+    		popupAnchor:  [-20,-60]
+		}
+	});
+	
+var SiteMark = new siteflag({iconUrl:'markers/site-BHW.png'});
+
+L.control.layers(baseMaps).addTo(map);
+
+var Sensors = 	[["Boscombe",50.71157,-1.84109],
+				["Chesil",50.60227,-2.52213],
+				["Milford",50.71284,-1.61490],
+				["Swanage Pier",50.6095,-1.94785],
+				["Weymouth",50.62298,-2.41367],
+				["West Bay",50.69393,-2.75186],
+				["Sandown Bay",50.65031,-1.12878],
+				["Bracklesham Bay",50.72421,-0.83887]];
+
+
+
+	window.addEventListener("orientationchange", function() {
+  	location.reload()
+	console.log("Switched")
+	}, false);
+
+
+
+//webdata
+
+
+SensorIndex = [0];
+//console.log(Sensors.length)
+
+ 
+fetch('https://data.channelcoast.org/observations/waves/latest?key=d5eb113b868a6c3035c2368cf97dfbf4')
+    .then(response => response.text())
+    .then(data => printIt(data))
+
+let printIt = (data) => {
+    //console.info(data)
+    parse_output(data)
+}
+
+
+//another functions
+
+function parse_output(data_0){ 
+data_1 = String(data_0);
+parser = new DOMParser();
+xmlDoc = parser.parseFromString(data_1,"text/html");
+
+for (let step = 0; step < Sensors.length; step++){
+
+let i = 0;
+do {
+  i += 1;
+  x = xmlDoc.getElementsByTagName("ms:sensor")[i];
+  y = x.childNodes[0];
+  y = y.nodeValue;	
+} while (y !== (Sensors[step])[0]);
+
+SensorIndex[step] = i;
+
+h = xmlDoc.getElementsByTagName("ms:hs")[i];
+h = h.childNodes[0];
+h = parseFloat(h.nodeValue);
+
+d = xmlDoc.getElementsByTagName("ms:value")[i];
+d = d.childNodes[0];
+d = d.nodeValue;
+
+t = xmlDoc.getElementsByTagName("ms:sst")[i];
+t = t.childNodes[0];
+t = t.nodeValue;
+
+p = xmlDoc.getElementsByTagName("ms:tp")[i];
+p = p.childNodes[0];
+p = p.nodeValue;
+
+Y = xmlDoc.getElementsByTagName("ms:date")[i];
+Y = Y.childNodes[0];
+Y = Y.nodeValue;
+
+(Sensors[step])[3]= h;
+(Sensors[step])[4]= t;
+(Sensors[step])[5]= p;
+(Sensors[step])[6]= d;
+(Sensors[step])[7]= Y;
+
+waveIcon(Sensors,step)
+}
+
+console.log(Sensors);
+}
+
+function waveIcon(WaveData,step) {
+
+//for (let step = 0; step < WaveData.length; step++){
+WaveHeight=(WaveData[step])[3];
+SeaTemp=(WaveData[step])[4];
+PPeak=(WaveData[step])[5];
+Direction=(WaveData[step])[6];
+iconheight = WaveHeight/1.7 * 44;
+iconwidth = WaveHeight/1.7 * 66;
+WaveText = Math.round(WaveHeight*10)/10;
+TempText = Math.round(SeaTemp*10)/10;
+PeakText = Math.round(PPeak);
+SiteName = (WaveData[step])[0];
+DirText = Math.round(Direction)+'deg';
+GeoLoc = [(WaveData[step])[1],(WaveData[step])[2]];
+
+timeicon(Y)
+var Datetime = ""
+function timeicon(DTG) {
+Da = DTG.split("#")[0];
+Ti = DTG.split("#")[1];
+Da = Da.match(/.{1,2}/g);
+Year = Da[0]+Da[1];
+Month = Da[2];
+Day = Da[3];
+Ti = Ti.match(/.{1,2}/g);
+MonthS = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+Month = MonthS[parseInt(Month)];
+Hour=Ti[0];
+Minute=Ti[1];
+DateTime =  Day + ' ' + Month + ' ' + Year + ' ' + Hour+Minute+'UTC'
+}
+
+//console.log(DateTime)
+
+
+
+var BoxLoad = ""	
+FillBox(iconheight,iconwidth,SiteName,DateTime)
+
+
+
+
+
+function FillBox(PicH,PicW,Name,DTG) {
+
+BoxLoad = 	'<table class="wavetable">'+
+			'<tr><td colspan="3" style="text-align: center;"><p2 class="wavehead" style="font-weight:bold;">'+ Name + '</p2></td></tr>'+
+			'<tr><td colspan="3" style="text-align: center; padding:5px;" nowrap="nowrap"><p2 class="wavehead">'+ DTG + '</p2></td></tr>' +
+			'<tr><td align="center" style="vertical-align:bottom;"><img id="dir" src="markers/dir_arrow.png" width="27" height="44" style=transform:rotate('+DirText+')></img></td>'+
+			'<td align="right" style="vertical-align:bottom;"><img id="wave" src="markers/wave.png" width='+PicW+' height='+PicH+' style="padding-left:10px"><img id="bloke" src="markers/bloke.png" width="27" height="44"></img></td>' +
+			'<td align="center" style="vertical-align:bottom;"><img id="wave" src="markers/thermo.png" width="12" height="40" style="padding-left:0px"></img></td></tr>'+
+			'<tr><td style="text-align: center;"><p2 style="font-weight:bold; color: blue;">'+ PeakText + 's</p2></td>'+
+			'<td style="text-align: center;"><p2 style="font-weight:bold; color: blue;">'+ WaveText + 'm</p2></td>'+
+			'<td style="text-align: center;"><p2 style="font-weight:bold; color: blue;">'+ TempText + '&degC</p2></td></tr></table>'	
+
+}
+
+
+L.marker(GeoLoc,{icon: SiteMark}).bindPopup(BoxLoad).on('mouseover', function (e) {
+            this.openPopup();
+        }).on('mouseout', function (e) {
+            this.closePopup();
+        }).addTo(map);
+
+
+
+}
+
+</script>
+
+
+
+</body>
+</html>
