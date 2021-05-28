@@ -11,7 +11,7 @@
 	<link rel="stylesheet" href="css/MarkerCluster.css" />
 	<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
 	<link rel="stylesheet" href="css/tabs.css" />
-	<link rel="shortcut icon" type="image/x-icon" href="markers/site-marker.png" />
+	<link rel="shortcut icon" type="image/x-icon" href="markers/BHW.png" />
 	<script src="js/leaflet.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	
@@ -23,14 +23,12 @@
 <div id='map'></div>
 <div id="box" style="z-index:5;"></div>
 
-
-
 <script>
 
 var SW = L.latLng(50.4, -2.3)
 var NE = L.latLng(50.8, -2)
 var SWmax = L.latLng(50, -3)
-var NEmax = L.latLng(52, -1)
+var NEmax = L.latLng(52, -0.5)
 DorsetBounds = L.latLngBounds(NE,SW);
 maxPanning = L.latLngBounds(NEmax,SWmax);
 
@@ -43,7 +41,7 @@ maxPanning = L.latLngBounds(NEmax,SWmax);
 		maxZoom: 13,
 		minZoom: 8,
 		attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, ' +
-			     'Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+					'Sea data courtesy of <a href="https://coastalmonitoring.org/">Channel Coastal Observatory<a>',
 		id: 'mapbox/streets-v11',
 	}).addTo(map);
 
@@ -52,14 +50,11 @@ maxPanning = L.latLngBounds(NEmax,SWmax);
 	Satellite = L.tileLayer('http://mt0.google.com/vt/lyrs=s&hl=en&x={x}&y={y}&z={z}', {
 		maxZoom: 13,
 		minZoom: 8,
-		attribution: '&copy; <a href="https://about.google/brand-resource-center/products-and-services/geo-guidelines/#required-attribution">Google </a> contributors'
+		attribution: '&copy; <a href="https://about.google/brand-resource-center/products-and-services/geo-guidelines/#required-attribution">Google </a> contributors,' +
+					'Sea data courtesy of <a href="https://coastalmonitoring.org/">Channel Coastal Observatory<a>',
 		});
 
 	
-
-
-
-
 map.fitBounds([DorsetBounds]);
 
 
@@ -77,26 +72,11 @@ var baseMaps = {
 			shadowUrl: 'markers/icon-shadow.png',
     		shadowSize:   [41,67],
     		shadowAnchor: [8,50],  
-    		popupAnchor:  [0,-69]
+    		popupAnchor:  [-20,-60]
 		}
 	});
 	
 var SiteMark = new siteflag({iconUrl:'markers/site-BHW.png'});
-
-Wave = L.Icon.extend({
-		options: {
-			//shadowUrl: 'markers/icon-shadow.png',
-    		shadowSize:   [41,67],
-    		shadowAnchor: [8,50],  
-    		popupAnchor:  [0,-69]
-			}
-	});
-Bloke = L.Icon.extend({
-			options: {
-				iconSize:     [27,44],
-				iconUrl:	'markers/bloke.png',
-			}
-		});
 
 L.control.layers(baseMaps).addTo(map);
 
@@ -105,13 +85,15 @@ var Sensors = 	[["Boscombe",50.71157,-1.84109],
 				["Milford",50.71284,-1.61490],
 				["Swanage Pier",50.6095,-1.94785],
 				["Weymouth",50.62298,-2.41367],
-				["West Bay",50.69393,-2.75186]];
+				["West Bay",50.69393,-2.75186],
+				["Sandown Bay",50.65031,-1.12878],
+				["Bracklesham Bay",50.72421,-0.83887]];
 
 
 
 	window.addEventListener("orientationchange", function() {
   	location.reload()
-	console.log("Switched")
+	//console.log("Switched")
 	}, false);
 
 
@@ -155,40 +137,117 @@ SensorIndex[step] = i;
 h = xmlDoc.getElementsByTagName("ms:hs")[i];
 h = h.childNodes[0];
 h = parseFloat(h.nodeValue);
+
+d = xmlDoc.getElementsByTagName("ms:value")[i];
+d = d.childNodes[0];
+d = d.nodeValue;
+
+t = xmlDoc.getElementsByTagName("ms:sst")[i];
+t = t.childNodes[0];
+t = t.nodeValue;
+
+p = xmlDoc.getElementsByTagName("ms:tp")[i];
+p = p.childNodes[0];
+p = p.nodeValue;
+
+Y = xmlDoc.getElementsByTagName("ms:date")[i];
+Y = Y.childNodes[0];
+Y = Y.nodeValue;
+
 (Sensors[step])[3]= h;
+(Sensors[step])[4]= t;
+(Sensors[step])[5]= p;
+(Sensors[step])[6]= d;
+(Sensors[step])[7]= Y;
+
 waveIcon(Sensors,step)
 }
 
-console.log(Sensors);
-
-
-
-
-//console.log(h)
-
-
-//waveicon(h);
+//console.log(Sensors);
 }
 
 function waveIcon(WaveData,step) {
 
 //for (let step = 0; step < WaveData.length; step++){
 WaveHeight=(WaveData[step])[3];
-iconheight = WaveHeight * 44;
-iconwidth = WaveHeight * 66;
-GeoLoc = [(WaveData[step])[1],(WaveData[step])[2]]
-var WaveMark = new Wave({
-	iconUrl:'markers/wave.png',
-	iconSize: [iconwidth,iconheight],
-	iconAnchor: [(iconwidth/2),iconheight]
-	});
-var BlokeMark = new Bloke({
-	iconAnchor: [-(iconwidth/2),44]
-	});
-L.marker(GeoLoc,{icon: WaveMark}).addTo(map);
-L.marker(GeoLoc,{icon: BlokeMark}).addTo(map);
-//}
+SeaTemp=(WaveData[step])[4];
+PPeak=(WaveData[step])[5];
+Direction=(WaveData[step])[6];
+iconheight = WaveHeight/1.7 * 44;
+iconwidth = WaveHeight/1.7 * 54;
+WaveText = Math.round(WaveHeight*10)/10;
+TempText = Math.round(SeaTemp*10)/10 + '&degC'
+if (SeaTemp == "None") {
+TempText = 'n/a'
 }
+PeakText = Math.round(PPeak)+'s';
+if (PPeak == "None") {
+PeakText = 'n/a'
+}
+SiteName = (WaveData[step])[0];
+DirText = Math.round(Direction)+'deg';
+DirH = 44;
+if (Direction == "None") {
+DirH = 0
+}
+GeoLoc = [(WaveData[step])[1],(WaveData[step])[2]];
+
+timeicon(Y)
+var Datetime = ""
+function timeicon(DTG) {
+Da = DTG.split("#")[0];
+Ti = DTG.split("#")[1];
+Da = Da.match(/.{1,2}/g);
+Year = Da[0]+Da[1];
+Month = Da[2];
+Day = Da[3];
+Ti = Ti.match(/.{1,2}/g);
+MonthS = ["","Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+Month = MonthS[parseInt(Month)];
+Hour=Ti[0];
+Minute=Ti[1];
+DateTime =  Day + ' ' + Month + ' ' + Year + ' ' + Hour+Minute+'UTC'
+}
+
+//console.log(SeaTemp)
+
+
+
+var BoxLoad = ""	
+FillBox(iconheight,iconwidth,SiteName,DateTime)
+
+
+
+
+
+function FillBox(PicH,PicW,Name,DTG) {
+
+BoxLoad = 	'<table class="wavetable">'+
+			'<tr><td colspan="3" style="text-align: center;"><p2 class="wavehead" style="font-weight:bold;">'+ Name + '</p2></td></tr>'+
+			'<tr><td colspan="3" style="text-align: center; padding:5px;" nowrap="nowrap"><p2 class="wavehead">'+ DTG + '</p2></td></tr>' +
+			'<tr><td align="center" style="vertical-align:bottom;"><img id="dir" src="markers/swell.png" width="22" height="'+DirH+'" style=transform:rotate('+DirText+')></img></td>'+
+			'<td align="center" style="vertical-align:bottom;"><img id="wave" src="markers/wave2.png" width='+PicW+' height='+PicH+' style="padding-left:10px"><img id="bloke" src="markers/bloke2.png" width="22" height="44"></img></td>' +
+			'<td align="center" style="vertical-align:bottom;"><img id="wave" src="markers/therm.png" width="12" height="40" style="padding-left:0px"></img></td></tr>'+
+			'<tr><td style="text-align: center;"><p2 style="font-weight:bold; color: blue;">'+ PeakText + '</p2></td>'+
+			'<td style="text-align: center;"><p2 style="font-weight:bold; color: blue;">'+ WaveText + 'm</p2></td>'+
+			'<td style="text-align: center;"><p2 style="font-weight:bold; color: blue;">'+ TempText + '</p2></td></tr>'+
+			'<tr><td style="text-align: center;"><p2 style="font-size:10px">Swell</p2></td>'+
+			'<td style="text-align: center;"><p2 style="font-size:10px">Wave Height</p2></td>'+
+			'<td style="text-align: center;"><p2 style="font-size:10px">Sea</p2></td></table>'			
+
+}
+
+
+L.marker(GeoLoc,{icon: SiteMark}).bindPopup(BoxLoad).on('mouseover', function (e) {
+            this.openPopup();
+        }).on('mouseout', function (e) {
+            this.closePopup();
+        }).addTo(map);
+
+
+
+}
+
 
 
 
@@ -198,6 +257,3 @@ L.marker(GeoLoc,{icon: BlokeMark}).addTo(map);
 
 </body>
 </html>
-
-
-	
