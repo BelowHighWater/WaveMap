@@ -291,7 +291,18 @@ markers.URLd = (Cameras[step])[5]
 
 //console.log(markers)
 
-markers.on('mouseover', function (h) {
+markers.on('hover', function (h) {
+			ArcCentr = this.getLatLng();
+			//console.log(ArcCentr);
+			
+			//console.log(step);
+            cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+			var step = h.target.LArc;
+			cam2Larc.setIconAngle(step);
+			var step = h.target.RArc;
+			cam2Rarc.setIconAngle(step)
+			}).on('mouseover', function (h) {
 			ArcCentr = this.getLatLng();
 			//console.log(ArcCentr);
 			
