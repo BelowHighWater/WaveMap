@@ -177,8 +177,10 @@ Y = Y.nodeValue;
 waveIcon(Sensors,step)
 }
 
-//console.log(Sensors);
 }
+
+var Gauges = {}
+var BuoyGroup = L.layerGroup().addTo(map);
 
 function waveIcon(WaveData,step) {
 
@@ -223,16 +225,8 @@ Minute=Ti[1];
 DateTime =  Day + ' ' + Month + ' ' + Year + ' ' + Hour+Minute+'UTC'
 }
 
-//console.log(SeaTemp)
-
-
-
 var BoxLoad = ""	
 FillBox(iconheight,iconwidth,SiteName,DateTime)
-
-
-
-
 
 function FillBox(PicH,PicW,Name,DTG) {
 
@@ -252,17 +246,17 @@ BoxLoad = 	'<table class="wavetable">'+
 }
 
 
-L.marker(GeoLoc,{icon: SiteMark,zIndex:3}).bindPopup(BoxLoad).on('mouseover', function (e) {
+Gauges = L.marker(GeoLoc,{icon: SiteMark,zIndex:3}).bindPopup(BoxLoad).on('mouseover', function (e) {
             this.openPopup();
         }).on('mouseout', function (e) {
             this.closePopup();
-        }).addTo(map);
-
-
+        })
+		BuoyGroup.addLayer(Gauges);
 
 }
 
 var markers = {};
+var CamGroup = L.layerGroup();
 
 for (let step = 0; step < Cameras.length; step++){
 
@@ -275,12 +269,16 @@ var Name = (Cameras[step])[0];
 //cam2Larc[Name] = RArc;
 //console.log(Name);
 
+
+
 markers= L.marker(CamLoc,{icon: WebCam,zIndex:500}).bindPopup(Name).on('mouseover', function (e) {
             this.openPopup();
         }).on('mouseout', function (e) {
             this.closePopup();
-        }).addTo(map);	
-
+        })
+		
+		CamGroup.addLayer(markers);
+		
 //var LiveCams = L.layerGroup([markers]);
 
 markers.MyID = Name
@@ -291,23 +289,10 @@ markers.URLd = (Cameras[step])[5]
 
 //console.log(markers)
 
-markers.on('hover', function (h) {
-			ArcCentr = this.getLatLng();
-			//console.log(ArcCentr);
-			
-			//console.log(step);
-            cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
-			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
-			var step = h.target.LArc;
-			cam2Larc.setIconAngle(step);
-			var step = h.target.RArc;
-			cam2Rarc.setIconAngle(step)
-			}).on('mouseover', function (h) {
-			ArcCentr = this.getLatLng();
-			//console.log(ArcCentr);
-			
-			//console.log(step);
-            cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+
+markers.on('mouseover', function (h) {
+		ArcCentr = this.getLatLng();
+           cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
 			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
 			var step = h.target.LArc;
 			cam2Larc.setIconAngle(step);
@@ -320,18 +305,35 @@ markers.on('hover', function (h) {
 		map.removeLayer(cam2Larc);
 		map.removeLayer(cam2Rarc);
 		})
-
+		
 }
+
+
 //console.log(markers)
 
 
 var baseMaps = {
-    "Street": Land,
-	"Satellite": Satellite
+    //"Wave gauges": WaveBuoy,
+	"Wave gauges": BuoyGroup,
+	"Web cams": CamGroup
 	};
 
 L.control.layers(baseMaps).addTo(map);
 
+
+  function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+
+ 
+}
 </script>
 
 
