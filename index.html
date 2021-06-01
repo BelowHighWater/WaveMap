@@ -13,7 +13,9 @@
 	<link rel="stylesheet" href="css/tabs.css" />
 	<link rel="shortcut icon" type="image/x-icon" href="markers/BHW.png" />
 	<script src="js/leaflet.js"></script>
+	<script src="js/iconrotate.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+	
 	
  
 </head>
@@ -24,10 +26,9 @@
 <div id="box" style="z-index:5;"></div>
 
 <script>
-
-var SW = L.latLng(50.4, -2.3)
-var NE = L.latLng(50.8, -2)
-var SWmax = L.latLng(50, -3)
+var SW = L.latLng(50.4, -2.5)
+var NE = L.latLng(50.8, -1.4)
+var SWmax = L.latLng(50, -3.2)
 var NEmax = L.latLng(52, -0.5)
 DorsetBounds = L.latLngBounds(NE,SW);
 maxPanning = L.latLngBounds(NEmax,SWmax);
@@ -58,10 +59,7 @@ maxPanning = L.latLngBounds(NEmax,SWmax);
 map.fitBounds([DorsetBounds]);
 
 
-var baseMaps = {
-    "Street": Land,
-	"Satellite": Satellite
-	};
+
 
 
 //Marker template
@@ -76,9 +74,28 @@ var baseMaps = {
 		}
 	});
 	
-var SiteMark = new siteflag({iconUrl:'markers/site-BHW.png'});
 
-L.control.layers(baseMaps).addTo(map);
+	
+	viewArrow = new L.Icon({
+    		iconSize:     [12,200],
+			iconAnchor:   [6,0],
+			iconUrl: 'markers/vizarrow.png',
+		
+	});
+	
+var SiteMark = new siteflag({iconUrl:'markers/site-BHW.png'});
+var WebCam = new siteflag({iconUrl:'markers/webcam.png'});
+
+
+
+var Cameras = 	[["Marine Theatre",50.72548, -2.93156,41,270,"http://www.lymeregis.org/Marine-Theatre-Webcam.aspx"],
+				["Boscombe Pier",50.72016, -1.84113,51,350,"https://www.surfline.com/surf-report/boscombe/584204214e65fad6a7709cee"],
+				["RNLI Swanage",50.60730, -1.94667,235,173,"https://www.swanagelifeboat.org.uk/webcam"],
+				["Harbour Heights",50.55585, -2.44132,156,98,"http://www.heightshotel.com/activities/web-cam/"],
+				["Ventnor",50.59283, -1.21134,257,290,"https://www.isleofwight.com/webcams/ventnor/"],
+				//["Haven Hotel",50.68296, -1.94874,107,"https://www.fjbhotels.co.uk/liveview/"],
+				["Bournemouth Pier",50.71601, -1.87541,41,2,"https://www.surfline.com/surf-report/bournemouth/584204214e65fad6a7709cf4"]
+				];
 
 var Sensors = 	[["Boscombe",50.71157,-1.84109],
 				["Chesil",50.60227,-2.52213],
@@ -88,6 +105,8 @@ var Sensors = 	[["Boscombe",50.71157,-1.84109],
 				["West Bay",50.69393,-2.75186],
 				["Sandown Bay",50.65031,-1.12878],
 				["Bracklesham Bay",50.72421,-0.83887]];
+				
+
 
 
 
@@ -163,8 +182,10 @@ Y = Y.nodeValue;
 waveIcon(Sensors,step)
 }
 
-//console.log(Sensors);
 }
+
+var Gauges = {}
+var BuoyGroup = L.layerGroup().addTo(map);
 
 function waveIcon(WaveData,step) {
 
@@ -209,16 +230,8 @@ Minute=Ti[1];
 DateTime =  Day + ' ' + Month + ' ' + Year + ' ' + Hour+Minute+'UTC'
 }
 
-//console.log(SeaTemp)
-
-
-
 var BoxLoad = ""	
 FillBox(iconheight,iconwidth,SiteName,DateTime)
-
-
-
-
 
 function FillBox(PicH,PicW,Name,DTG) {
 
@@ -233,27 +246,160 @@ BoxLoad = 	'<table class="wavetable">'+
 			'<td style="text-align: center;"><p2 style="font-weight:bold; color: blue;">'+ TempText + '</p2></td></tr>'+
 			'<tr><td style="text-align: center;"><p2 style="font-size:10px">Swell</p2></td>'+
 			'<td style="text-align: center;"><p2 style="font-size:10px">Wave Height</p2></td>'+
-			'<td style="text-align: center;"><p2 style="font-size:10px">Sea</p2></td></table>'			
+			'<td style="text-align: center;"><p2 style="font-size:10px">Sea</p2></td></tr></table>'			
 
 }
 
 
-L.marker(GeoLoc,{icon: SiteMark}).bindPopup(BoxLoad).on('mouseover', function (e) {
+Gauges = L.marker(GeoLoc,{icon: SiteMark}).bindPopup(BoxLoad).on('mouseover', function (e) {
             this.openPopup();
         }).on('mouseout', function (e) {
             this.closePopup();
-        }).addTo(map);
-
-
+        })
+		BuoyGroup.addLayer(Gauges);
 
 }
 
+var markers = {};
+var CamGroup = L.layerGroup();
+
+for (let step = 0; step < Cameras.length; step++){
+
+var CamLoc = [(Cameras[step])[1],(Cameras[step])[2]]
+LArc = (Cameras[step])[3]
+RArc = (Cameras[step])[4]
+URLd = (Cameras[step])[5]
+var Name = (Cameras[step])[0];
+//cam2Larc[Name] = LArc;
+//cam2Larc[Name] = RArc;
+//console.log(Name);
+
+CamBox = '<a href = ' + URLd + ' target="_blank"><h2>'+ Name + '</h2><img src="markers/screen/'+Name+'.jpg" style="width:200px;height:120px; vertical-align:middle;">'
+
+markers= L.marker(CamLoc,{icon: WebCam}).bindPopup(CamBox).on('click', function (e) {
+            this.openPopup();
+        })//.on('click', function (e) {
+            //this.closePopup();
+        //})
+		
+		CamGroup.addLayer(markers);
+		
+//var LiveCams = L.layerGroup([markers]);
+
+markers.MyID = Name
+markers.LArc = (Cameras[step])[3]
+markers.RArc = (Cameras[step])[4]
+markers.URLd = (Cameras[step])[5]
+
+
+//console.log(markers)
+
+markers.on('mouseover', function (h) {
+		ArcCentr = this.getLatLng();
+           cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+			var step = h.target.LArc;
+			cam2Larc.setIconAngle(step);
+			var step = h.target.RArc;
+			cam2Rarc.setIconAngle(step);
+		//}).on('click', function(ff) {
+		//var step = ff.target.URLd;		
+		//window.open(step)
+		}).on('mouseout',function (g) {
+		map.removeLayer(cam2Larc);
+		map.removeLayer(cam2Rarc);
+		})
+
+
+//markers.on('mouseover', function (h) {
+	//	ArcCentr = this.getLatLng();
+ //          cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+//			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+//			var step = h.target.LArc;
+//			cam2Larc.setIconAngle(step);
+//			var step = h.target.RArc;
+//			cam2Rarc.setIconAngle(step)
+//		}).on('click', function(ff) {
+//		var step = ff.target.URLd;		
+//		window.open(step)
+//		}).on('mouseout',function (g) {
+//		map.removeLayer(cam2Larc);
+//		map.removeLayer(cam2Rarc);
+//		})
+		
+}
+
+
+//console.log(markers)
 
 
 
+
+
+  function detectMob() {
+    const toMatch = [
+        /Android/i,
+        /webOS/i,
+        /iPhone/i,
+        /iPad/i,
+        /iPod/i,
+        /BlackBerry/i,
+        /Windows Phone/i
+    ];
+
+ 
+}
 </script>
 
+<script>
 
 
+
+tideflag = L.Icon.extend({
+		options: {
+    		iconSize:     [41,67],
+			iconAnchor:   [20,67],
+			shadowUrl: 'markers/icon-shadow.png',
+    		shadowSize:   [41,67],
+    		shadowAnchor: [8,50],  
+    		popupAnchor:  [-20,-60]
+		}
+	});
+var TideMark = new tideflag({iconUrl:'markers/TideNode.png'});
+
+var TideNodes =	[[50.7110, -1.9834,"pooleharbour.html"],
+				[50.5667, -2.4333,"portland.html"],
+				[50.68178, -1.95017,"pooleentrance.html"],
+				[50.72027, -2.93772,"lymeregis.html"],
+				[50.72318, -1.74284,"xchurchentry.html"],
+				[50.61816, -2.24692,"lulworth.html"],
+				[50.62131, -2.55019,"chesilbeach.html"],
+				[50.61124, -1.95684,"swanage.html"],
+				[50.75237, -1.52521,"lymington.html"],
+				];
+
+var tidetables = {};
+
+TideGroup = L.layerGroup();
+
+for (let i = 0; i < TideNodes.length; i++){
+
+var TideLoc = [(TideNodes[i])[0],(TideNodes[i])[1]];
+var link = (TideNodes[i])[2];
+
+tidetables = L.marker(TideLoc,{icon: TideMark})
+.bindPopup('<object data="./markers/tides/' + link + '" width="178" height="238"></object>')
+TideGroup.addLayer(tidetables);
+}
+
+
+var baseMaps = {
+	"Wave gauges": BuoyGroup,
+	"Web cams": CamGroup,
+	"Tide tables": TideGroup
+	};
+
+L.control.layers(baseMaps).addTo(map);
+</script>
 </body>
 </html>

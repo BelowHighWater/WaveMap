@@ -13,7 +13,6 @@
 	<link rel="stylesheet" href="css/tabs.css" />
 	<link rel="shortcut icon" type="image/x-icon" href="markers/BHW.png" />
 	<script src="js/leaflet.js"></script>
-	<script src="js/iconrotate.js"></script>
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 	
  
@@ -59,7 +58,10 @@ maxPanning = L.latLngBounds(NEmax,SWmax);
 map.fitBounds([DorsetBounds]);
 
 
-
+var baseMaps = {
+    "Street": Land,
+	"Satellite": Satellite
+	};
 
 
 //Marker template
@@ -74,25 +76,9 @@ map.fitBounds([DorsetBounds]);
 		}
 	});
 	
-	viewArrow = new L.Icon({
-    		iconSize:     [12,200],
-			iconAnchor:   [6,0],
-			iconUrl: 'markers/vizarrow.png',
-		
-	});
-	
-var SiteMark = new siteflag({iconUrl:'markers/site-BHW.png',zIndex:1});
-var WebCam = new siteflag({iconUrl:'markers/webcam.png',zIndexOffset:-202});
+var SiteMark = new siteflag({iconUrl:'markers/site-BHW.png'});
 
-
-
-var Cameras = 	[["Marine Theatre",50.72548, -2.93156,41,270,"http://www.lymeregis.org/Marine-Theatre-Webcam.aspx"],
-				["Boscombe Pier",50.71976, -1.84306,41,2,"https://www.surfline.com/surf-report/bournemouth/584204214e65fad6a7709cf4?camId=5834968e3421b20545c4b525&fbclid=IwAR0Xcw4L6CMZF_YeNLz7zLFgCu4NNt063gL2PNw0BAzrCA5wFE6EaZbb3-Y"],
-				["RNLI Swanage",50.60730, -1.94667,235,173,"https://www.swanagelifeboat.org.uk/webcam"],
-				["Harbour Heights",50.55585, -2.44132,156,98,"http://www.heightshotel.com/activities/web-cam/"],
-				["Ventnor",50.59283, -1.21134,257,290,"https://www.isleofwight.com/webcams/ventnor/"],
-				//["Haven Hotel",50.68296, -1.94874,107,"https://www.fjbhotels.co.uk/liveview/"],
-				];
+L.control.layers(baseMaps).addTo(map);
 
 var Sensors = 	[["Boscombe",50.71157,-1.84109],
 				["Chesil",50.60227,-2.52213],
@@ -177,10 +163,8 @@ Y = Y.nodeValue;
 waveIcon(Sensors,step)
 }
 
+//console.log(Sensors);
 }
-
-var Gauges = {}
-var BuoyGroup = L.layerGroup().addTo(map);
 
 function waveIcon(WaveData,step) {
 
@@ -225,8 +209,16 @@ Minute=Ti[1];
 DateTime =  Day + ' ' + Month + ' ' + Year + ' ' + Hour+Minute+'UTC'
 }
 
+//console.log(SeaTemp)
+
+
+
 var BoxLoad = ""	
 FillBox(iconheight,iconwidth,SiteName,DateTime)
+
+
+
+
 
 function FillBox(PicH,PicW,Name,DTG) {
 
@@ -246,94 +238,19 @@ BoxLoad = 	'<table class="wavetable">'+
 }
 
 
-Gauges = L.marker(GeoLoc,{icon: SiteMark,zIndex:3}).bindPopup(BoxLoad).on('mouseover', function (e) {
+L.marker(GeoLoc,{icon: SiteMark}).bindPopup(BoxLoad).on('mouseover', function (e) {
             this.openPopup();
         }).on('mouseout', function (e) {
             this.closePopup();
-        })
-		BuoyGroup.addLayer(Gauges);
+        }).addTo(map);
+
+
 
 }
 
-var markers = {};
-var CamGroup = L.layerGroup();
-
-for (let step = 0; step < Cameras.length; step++){
-
-var CamLoc = [(Cameras[step])[1],(Cameras[step])[2]]
-LArc = (Cameras[step])[3]
-RArc = (Cameras[step])[4]
-URLd = (Cameras[step])[5]
-var Name = (Cameras[step])[0];
-//cam2Larc[Name] = LArc;
-//cam2Larc[Name] = RArc;
-//console.log(Name);
 
 
 
-markers= L.marker(CamLoc,{icon: WebCam,zIndex:500}).bindPopup(Name).on('mouseover', function (e) {
-            this.openPopup();
-        }).on('mouseout', function (e) {
-            this.closePopup();
-        })
-		
-		CamGroup.addLayer(markers);
-		
-//var LiveCams = L.layerGroup([markers]);
-
-markers.MyID = Name
-markers.LArc = (Cameras[step])[3]
-markers.RArc = (Cameras[step])[4]
-markers.URLd = (Cameras[step])[5]
-
-
-//console.log(markers)
-
-
-markers.on('mouseover', function (h) {
-		ArcCentr = this.getLatLng();
-           cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
-			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
-			var step = h.target.LArc;
-			cam2Larc.setIconAngle(step);
-			var step = h.target.RArc;
-			cam2Rarc.setIconAngle(step)
-		}).on('click', function(ff) {
-		var step = ff.target.URLd;		
-		window.open(step)
-		}).on('mouseout',function (g) {
-		map.removeLayer(cam2Larc);
-		map.removeLayer(cam2Rarc);
-		})
-		
-}
-
-
-//console.log(markers)
-
-
-var baseMaps = {
-    //"Wave gauges": WaveBuoy,
-	"Wave gauges": BuoyGroup,
-	"Web cams": CamGroup
-	};
-
-L.control.layers(baseMaps).addTo(map);
-
-
-  function detectMob() {
-    const toMatch = [
-        /Android/i,
-        /webOS/i,
-        /iPhone/i,
-        /iPad/i,
-        /iPod/i,
-        /BlackBerry/i,
-        /Windows Phone/i
-    ];
-
- 
-}
 </script>
 
 
