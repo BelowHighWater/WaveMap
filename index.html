@@ -73,7 +73,17 @@ map.fitBounds([DorsetBounds]);
     		popupAnchor:  [-20,-60]
 		}
 	});
-	
+
+	bottomflag = L.Icon.extend({
+		options: {
+    		iconSize:     [41,67],
+			iconAnchor:   [20,67],
+			shadowUrl: 'markers/icon-shadow.png',
+    		shadowSize:   [41,67],
+    		shadowAnchor: [8,50],  
+    		popupAnchor:  [-20,215]
+		}
+	});	
 
 	
 	viewArrow = new L.Icon({
@@ -85,16 +95,16 @@ map.fitBounds([DorsetBounds]);
 	
 var SiteMark = new siteflag({iconUrl:'markers/site-BHW.png'});
 var WebCam = new siteflag({iconUrl:'markers/webcam.png'});
+var WebCamBtm = new bottomflag({iconUrl:'markers/webcam.png'});
 
 
-
-var Cameras = 	[["Marine Theatre",50.72548, -2.93156,41,270,"http://www.lymeregis.org/Marine-Theatre-Webcam.aspx"],
-				["Boscombe Pier",50.72016, -1.84113,51,350,"https://www.surfline.com/surf-report/boscombe/584204214e65fad6a7709cee"],
-				["RNLI Swanage",50.60730, -1.94667,235,173,"https://www.swanagelifeboat.org.uk/webcam"],
-				["Harbour Heights",50.55585, -2.44132,156,98,"http://www.heightshotel.com/activities/web-cam/"],
-				["Ventnor",50.59283, -1.21134,257,290,"https://www.isleofwight.com/webcams/ventnor/"],
-				//["Haven Hotel",50.68296, -1.94874,107,"https://www.fjbhotels.co.uk/liveview/"],
-				["Bournemouth Pier",50.71601, -1.87541,41,2,"https://www.surfline.com/surf-report/bournemouth/584204214e65fad6a7709cf4"]
+var Cameras = 	[["Marine Theatre",50.72548, -2.93156,41,270,"http://www.lymeregis.org/Marine-Theatre-Webcam.aspx",0],
+				["Boscombe Pier",50.72016, -1.84113,51,350,"https://www.surfline.com/surf-report/boscombe/584204214e65fad6a7709cee",0],
+				["RNLI Swanage",50.60730, -1.94667,235,173,"https://www.swanagelifeboat.org.uk/webcam",1],
+				["Harbour Heights",50.55585, -2.44132,156,98,"http://www.heightshotel.com/activities/web-cam/",1],
+				["Ventnor",50.59283, -1.21134,257,290,"https://www.isleofwight.com/webcams/ventnor/",0],
+				["Haven Hotel",50.68296,-1.94874,134,77,"https://www.fjbhotels.co.uk/liveview/",0],
+				["Bournemouth Pier",50.71601, -1.87541,41,2,"https://www.surfline.com/surf-report/bournemouth/584204214e65fad6a7709cf4",0]
 				];
 
 var Sensors = 	[["Boscombe",50.71157,-1.84109],
@@ -270,17 +280,36 @@ LArc = (Cameras[step])[3]
 RArc = (Cameras[step])[4]
 URLd = (Cameras[step])[5]
 var Name = (Cameras[step])[0];
+var buttum = (Cameras[step])[6];
+console.log(buttum);
 //cam2Larc[Name] = LArc;
 //cam2Larc[Name] = RArc;
 //console.log(Name);
 
 CamBox = '<a href = ' + URLd + ' target="_blank"><h2>'+ Name + '</h2><img src="markers/screen/'+Name+'.jpg" style="width:200px;height:120px; vertical-align:middle;">'
-
-markers= L.marker(CamLoc,{icon: WebCam}).bindPopup(CamBox).on('click', function (e) {
+if (buttum > 0 ) {
+markers = L.marker(CamLoc,{icon: WebCamBtm})
+} else {
+markers = L.marker(CamLoc,{icon: WebCam})
+}
+markers.bindPopup(CamBox)
+		.on('mouseover', function (e) {
             this.openPopup();
-        })//.on('click', function (e) {
-            //this.closePopup();
-        //})
+		})
+		.on('popupopen', function (h) {
+			ArcCentr = this.getLatLng();
+			cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
+			var step = h.target.LArc;
+			cam2Larc.setIconAngle(step);
+			var step = h.target.RArc;
+			cam2Rarc.setIconAngle(step);
+		})
+		.on('popupclose', function (gg) {
+		map.removeLayer(cam2Larc);
+		map.removeLayer(cam2Rarc);
+		})
+		
 		
 		CamGroup.addLayer(markers);
 		
@@ -294,58 +323,11 @@ markers.URLd = (Cameras[step])[5]
 
 //console.log(markers)
 
-markers.on('mouseover', function (h) {
-		ArcCentr = this.getLatLng();
-           cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
-			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
-			var step = h.target.LArc;
-			cam2Larc.setIconAngle(step);
-			var step = h.target.RArc;
-			cam2Rarc.setIconAngle(step);
-		//}).on('click', function(ff) {
-		//var step = ff.target.URLd;		
-		//window.open(step)
-		}).on('mouseout',function (g) {
-		map.removeLayer(cam2Larc);
-		map.removeLayer(cam2Rarc);
-		})
-
-
-//markers.on('mouseover', function (h) {
-	//	ArcCentr = this.getLatLng();
- //          cam2Larc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
-//			cam2Rarc = L.marker(ArcCentr,{icon: viewArrow}).addTo(map);
-//			var step = h.target.LArc;
-//			cam2Larc.setIconAngle(step);
-//			var step = h.target.RArc;
-//			cam2Rarc.setIconAngle(step)
-//		}).on('click', function(ff) {
-//		var step = ff.target.URLd;		
-//		window.open(step)
-//		}).on('mouseout',function (g) {
-//		map.removeLayer(cam2Larc);
-//		map.removeLayer(cam2Rarc);
-//		})
-		
-}
-
-
-//console.log(markers)
 
 
 
 
 
-  function detectMob() {
-    const toMatch = [
-        /Android/i,
-        /webOS/i,
-        /iPhone/i,
-        /iPad/i,
-        /iPod/i,
-        /BlackBerry/i,
-        /Windows Phone/i
-    ];
 
  
 }
@@ -389,6 +371,11 @@ var link = (TideNodes[i])[2];
 
 tidetables = L.marker(TideLoc,{icon: TideMark})
 .bindPopup('<object data="./markers/tides/' + link + '" width="178" height="238"></object>')
+.on('mouseover', function (w) {
+            this.openPopup();
+        }).on('mouseout', function (e) {
+          this.closePopup();
+        })
 TideGroup.addLayer(tidetables);
 }
 
