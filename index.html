@@ -350,6 +350,7 @@ tideflag = L.Icon.extend({
 var TideMark = new tideflag({iconUrl:'markers/TideNode.png'});
 
 var TideNodes =	[[50.7110, -1.9834,"pooleharbour.html"],
+				[50.7147,-1.8762,"bournemouth.html"],
 				[50.5667, -2.4333,"portland.html"],
 				[50.68178, -1.95017,"pooleentrance.html"],
 				[50.72027, -2.93772,"lymeregis.html"],
@@ -370,7 +371,7 @@ var TideLoc = [(TideNodes[i])[0],(TideNodes[i])[1]];
 var link = (TideNodes[i])[2];
 
 tidetables = L.marker(TideLoc,{icon: TideMark})
-.bindPopup('<object data="./markers/tides/' + link + '" width="178" height="238"></object>')
+.bindPopup('<object data="./markers/tides/' + link + '" width="240" height="290"></object>')
 .on('mouseover', function (w) {
             this.openPopup();
         }).on('mouseout', function (e) {
