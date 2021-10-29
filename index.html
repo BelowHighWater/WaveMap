@@ -28,7 +28,7 @@
 <script>
 var SW = L.latLng(50.4, -2.5)
 var NE = L.latLng(50.8, -1.4)
-var SWmax = L.latLng(50, -3.2)
+var SWmax = L.latLng(50, -4.0)
 var NEmax = L.latLng(52, -0.5)
 DorsetBounds = L.latLngBounds(NE,SW);
 maxPanning = L.latLngBounds(NEmax,SWmax);
@@ -87,7 +87,7 @@ map.fitBounds([DorsetBounds]);
 
 	
 	viewArrow = new L.Icon({
-    		iconSize:     [12,200],
+    		iconSize:     [12,100],
 			iconAnchor:   [6,0],
 			iconUrl: 'markers/vizarrow.png',
 		
@@ -104,7 +104,8 @@ var Cameras = 	[["Marine Theatre",50.72548, -2.93156,41,270,"http://www.lymeregi
 				["Harbour Heights",50.55585, -2.44132,156,98,"http://www.heightshotel.com/activities/web-cam/",1],
 				["Ventnor",50.59283, -1.21134,257,290,"https://www.isleofwight.com/webcams/ventnor/",0],
 				["Haven Hotel",50.68296,-1.94874,134,77,"https://www.fjbhotels.co.uk/liveview/",0],
-				["Bournemouth Pier",50.71601, -1.87541,41,2,"https://www.surfline.com/surf-report/bournemouth/584204214e65fad6a7709cf4",0]
+				["Bournemouth Pier",50.71601, -1.87541,41,2,"https://www.surfline.com/surf-report/bournemouth/584204214e65fad6a7709cf4",0],
+				["Teignmouth NCI",50.54840, -3.49093,355,025,"https://www.teignmouth-nci.org.uk/live-webcam"]
 				];
 
 var Sensors = 	[["Boscombe",50.71157,-1.84109],
@@ -114,7 +115,9 @@ var Sensors = 	[["Boscombe",50.71157,-1.84109],
 				["Weymouth",50.62298,-2.41367],
 				["West Bay",50.69393,-2.75186],
 				["Sandown Bay",50.65031,-1.12878],
-				["Bracklesham Bay",50.72421,-0.83887]];
+				["Bracklesham Bay",50.72421,-0.83887],
+				["Tor Bay",50.43340, -3.51732],
+				["Dawlish",50.57996,-3.41673]];
 				
 
 
